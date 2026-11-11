@@ -56,13 +56,13 @@ const box=document.getElementById('box'),ov=document.getElementById('ov');
 (function(){const fx=document.getElementById('fx');for(let i=0;i<18;i++){const p=document.createElement('div');p.className='spark';const z=4+Math.random()*8;
  p.style.cssText='left:'+(Math.random()*100)+'%;width:'+z+'px;height:'+z+'px;animation-duration:'+(7+Math.random()*8)+'s;animation-delay:'+(-Math.random()*14)+'s';fx.appendChild(p)}})();
 let items=[],score,lives,time,run=false,last,spawn,best=0;
-function kind(){const r=Math.random();return r<.2?'bomb':r<.65?'apple':r<.77?'grape':r<.9?'straw':'gem'}
+function kind(){const r=Math.random();return r<.32?'bomb':r<.7?'apple':r<.77?'grape':r<.9?'straw':'gem'}
 function pickX(k){const w=box.clientWidth,max=Math.max(10,w-HIT);const near=items.filter(i=>!i.dead&&i.y<HIT*2.5);let best=Math.random()*max,bd=-1;
  for(let n=0;n<12;n++){const x=Math.random()*max;let d=Infinity;near.forEach(i=>d=Math.min(d,Math.abs(i.x-x)));if(d>=HIT+GAP)return x;if(d>bd){bd=d;best=x}}return bd>=HIT?best:null}
 function hud(){s.textContent=score;t.textContent=Math.ceil(Math.max(0,time));l.textContent=Math.max(0,lives)}
 function add(){const k=kind(),x=pickX(k);if(x===null)return false;const el=document.createElement('div');el.className='item';
  el.innerHTML=IMG[k]?'<img src="'+IMG[k]+'">':(k==='gem'?'💎':'💣');
- let v=170+Math.random()*150+(30-time)*9;items.forEach(i=>{if(!i.dead&&Math.abs(i.x-x)<HIT)v=Math.min(v,i.v)});
+ let v=230+Math.random()*170+(30-time)*11;items.forEach(i=>{if(!i.dead&&Math.abs(i.x-x)<HIT)v=Math.min(v,i.v)});
  const it={el,k,x,y:-HIT,v};el.style.left=it.x+'px';el.style.top=it.y+'px';
  el.addEventListener('pointerdown',e=>{e.preventDefault();hit(it)});box.appendChild(el);items.push(it);return true}
 function pop(x,y,txt,bad){const p=document.createElement('div');p.className='pop'+(bad?' bad':'');p.textContent=txt;p.style.left=(x+16)+'px';p.style.top=y+'px';box.appendChild(p);setTimeout(()=>p.remove(),600)}
