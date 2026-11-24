@@ -255,7 +255,7 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
 
   <div id="topbar">
     <div class="iconbtns">
-      <button class="iconbtn" id="btn-sound" type="button" aria-label="เปิดเสียงบรรยากาศ" aria-pressed="false" title="เสียงบรรยากาศ">
+      <button class="iconbtn" id="btn-sound" type="button" aria-label="เปิดเพลง" aria-pressed="false" title="เปิดเพลง">
         <svg id="ic-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="m16 10 5 5M21 10l-5 5"/></svg>
         <svg id="ic-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="display:none"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
       </button>
@@ -309,6 +309,8 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
     </button>
   </aside>
 </div>
+
+<audio id="bgm" src="music.mp3" loop preload="auto"></audio>
 
 <script>
 (function(){
@@ -766,58 +768,45 @@ async function onShare(){
   }
 }
 
+function syncSoundUI(){
+  const on=!!audio.on;
+  const btn=$("btn-sound");
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", on?"true":"false");
+  btn.setAttribute("aria-label", on?"ปิดเพลง":"เปิดเพลง");
+  btn.setAttribute("title", on?"ปิดเพลง":"เปิดเพลง");
+  $("ic-sound-on").style.display=on?"":"none";
+  $("ic-sound-off").style.display=on?"none":"";
+}
+function unbindFirstGesture(){
+  document.removeEventListener("pointerdown", onFirstGesture, true);
+  document.removeEventListener("keydown", onFirstGesture, true);
+}
+function onFirstGesture(e){
+  if(audio.on){ unbindFirstGesture(); return; }
+  if(e && e.target && e.target.closest && e.target.closest("#btn-sound")) return;
+  if(e && e.type==="keydown" && (e.repeat || e.metaKey || e.ctrlKey || e.altKey)) return;
+  unbindFirstGesture();
+  startSound();
+}
 function stopSound(){
-  audio.nodes.forEach(n=>{ try{ n.stop? n.stop(): n.disconnect(); }catch(e){} });
-  audio.nodes=[];
-  if(audio.master){ try{ audio.master.gain.value=0; audio.master.disconnect(); }catch(e){} audio.master=null; }
+  const el=$("bgm");
+  if(el){ try{ el.pause(); }catch(e){} }
   audio.on=false;
-  $("btn-sound").classList.remove("on");
-  $("btn-sound").setAttribute("aria-pressed","false");
-  $("btn-sound").setAttribute("aria-label","เปิดเสียงบรรยากาศ");
-  $("ic-sound-on").style.display="none";
-  $("ic-sound-off").style.display="";
+  syncSoundUI();
 }
 function startSound(){
-  const AC=window.AudioContext||window.webkitAudioContext;
-  if(!AC){ toast("เครื่องนี้ไม่รองรับเสียง"); return; }
-  if(!audio.ctx) audio.ctx=new AC();
-  const ctx=audio.ctx;
-  if(ctx.state==="suspended") ctx.resume();
-  const master=ctx.createGain();
-  master.gain.value=0.0001;
-  master.connect(ctx.destination);
-  audio.master=master;
-  master.gain.linearRampToValueAtTime(0.7, ctx.currentTime+1.2);
-
-  // soft water noise
-  const len=ctx.sampleRate*3;
-  const buf=ctx.createBuffer(1,len,ctx.sampleRate);
-  const d=buf.getChannelData(0);
-  let last=0;
-  for(let i=0;i<len;i++){ last = last*0.97 + (Math.random()*2-1)*0.03; d[i]=last; }
-  const src=ctx.createBufferSource(); src.buffer=buf; src.loop=true;
-  const lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=520; lp.Q.value=0.6;
-  const g=ctx.createGain(); g.gain.value=0.08;
-  src.connect(lp); lp.connect(g); g.connect(master);
-  src.start();
-
-  // quiet night pad
-  const osc=ctx.createOscillator(); osc.type="sine"; osc.frequency.value=110;
-  const osc2=ctx.createOscillator(); osc2.type="sine"; osc2.frequency.value=164.8;
-  const pg=ctx.createGain(); pg.gain.value=0.015;
-  const lfo=ctx.createOscillator(); lfo.frequency.value=0.07;
-  const lg=ctx.createGain(); lg.gain.value=8;
-  lfo.connect(lg); lg.connect(lp.frequency);
-  osc.connect(pg); osc2.connect(pg); pg.connect(master);
-  osc.start(); osc2.start(); lfo.start();
-
-  audio.nodes=[src,osc,osc2,lfo,lp,g,pg];
-  audio.on=true;
-  $("btn-sound").classList.add("on");
-  $("btn-sound").setAttribute("aria-pressed","true");
-  $("btn-sound").setAttribute("aria-label","ปิดเสียงบรรยากาศ");
-  $("ic-sound-on").style.display="";
-  $("ic-sound-off").style.display="none";
+  const el=$("bgm");
+  if(!el || typeof el.play!=="function"){ toast("เครื่องนี้ไม่รองรับเสียง"); return; }
+  el.volume=0.7;
+  el.loop=true;
+  const ok=()=>{ audio.on=true; unbindFirstGesture(); syncSoundUI(); };
+  const fail=()=>{ audio.on=false; syncSoundUI(); };
+  try{
+    const p=el.play();
+    if(p && p.then) p.then(ok).catch(fail);
+    else ok();
+  }catch(e){ fail(); }
 }
 function toggleSound(){ if(audio.on) stopSound(); else startSound(); }
 
@@ -834,6 +823,8 @@ function boot(){
   window.addEventListener("resize", measureSheet);
   $("btn-share").addEventListener("click", onShare);
   $("btn-sound").addEventListener("click", toggleSound);
+  document.addEventListener("pointerdown", onFirstGesture, true);
+  document.addEventListener("keydown", onFirstGesture, true);
 
   if(DEMO){
     const it=makeItem({
