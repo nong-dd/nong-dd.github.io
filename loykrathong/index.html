@@ -90,16 +90,16 @@ img,svg{display:block;max-width:100%}
 @keyframes spark{0%,100%{opacity:0;transform:scale(.4)}40%,60%{opacity:.9;transform:scale(1)}}
 
 #fleet{position:absolute;inset:0;z-index:6;pointer-events:none}
-.kitem{position:absolute;left:0;top:0;width:96px;height:120px;transform-origin:50% 88%;pointer-events:auto;cursor:pointer;will-change:transform;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35))}
+.kitem{position:absolute;left:0;top:0;width:67px;height:84px;transform-origin:50% 88%;pointer-events:auto;cursor:pointer;will-change:transform;filter:drop-shadow(0 6px 4px rgba(0,0,0,.35))}
 .kitem .ksvg{width:100%;height:100%;overflow:visible}
 .kitem .ksvg svg{width:100%;height:100%;overflow:visible}
-.kitem.kimg{width:124px;height:auto}
+.kitem.kimg{width:87px;height:auto}
 .kitem.kimg .ksvg{height:auto;line-height:0}
 .kitem.kimg .ksvg img{width:100%;height:auto;display:block;pointer-events:none}
-.kitem .kavatar{position:absolute;top:10%;right:-8px;width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.5);object-fit:cover;background:#2a2038;z-index:5;pointer-events:none}
-.klabel{position:absolute;left:50%;bottom:100%;margin-bottom:6px;transform:translateX(-50%);transform-origin:50% 100%;width:max-content;max-width:160px;padding:5px 10px;border-radius:10px;background:rgba(8,12,24,.86);border:1px solid rgba(232,200,122,.35);color:#fff6d8;font-size:12px;line-height:1.4;text-align:center;opacity:0;pointer-events:none;transition:opacity .35s;backdrop-filter:blur(6px);box-shadow:0 6px 16px rgba(0,0,0,.3);z-index:2}
-.klabel b{display:block;color:var(--gold-2);font-weight:600;font-size:12px;margin-bottom:1px}
-.klabel span{white-space:normal;display:block}
+.kitem .kavatar{position:absolute;top:10%;right:-6px;width:21px;height:21px;border-radius:50%;border:1.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5);object-fit:cover;background:#2a2038;z-index:5;pointer-events:none}
+.klabel{position:absolute;left:50%;bottom:100%;margin-bottom:4px;transform:translateX(-50%);transform-origin:50% 100%;width:max-content;max-width:112px;padding:3px 7px;border-radius:8px;background:rgba(8,12,24,.86);border:1px solid rgba(232,200,122,.35);color:#fff6d8;font-size:10px;line-height:1.3;text-align:center;opacity:0;pointer-events:none;transition:opacity .35s;backdrop-filter:blur(6px);box-shadow:0 4px 10px rgba(0,0,0,.3);z-index:2}
+.klabel b{display:block;color:var(--gold-2);font-weight:600;font-size:10px;margin-bottom:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:98px}
+.klabel span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:98px;font-size:9px;opacity:.88}
 .kitem.show-label .klabel{opacity:1}
 
 /* flame flicker lives in SVG via CSS */
@@ -132,9 +132,18 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
 #counter .num{font-family:var(--display);font-size:22px;line-height:1.1;color:var(--gold-2);font-weight:700}
 
 /* ---- designer ---- */
-#designer{position:absolute;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,rgba(14,20,40,.86),rgba(8,12,24,.94));border-top:1px solid rgba(232,200,122,.38);border-radius:22px 22px 0 0;padding:6px 14px calc(10px + var(--safe-b));backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 -12px 40px rgba(0,0,0,.4)}
+#designer{position:absolute;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,rgba(14,20,40,.86),rgba(8,12,24,.94));border-top:1px solid rgba(232,200,122,.38);border-radius:22px 22px 0 0;padding:6px 14px calc(10px + var(--safe-b));backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 -12px 40px rgba(0,0,0,.4);transition:padding .2s ease}
 .handle{width:40px;height:4px;border-radius:4px;background:rgba(232,200,122,.35);margin:0 auto 6px}
-#designer h2{font-size:13px;font-weight:600;color:var(--gold-2);margin-bottom:6px;letter-spacing:.04em}
+.designer-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+#designer h2{font-size:13px;font-weight:600;color:var(--gold-2);margin:0;letter-spacing:.04em;line-height:1.3}
+#designer-toggle{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;height:30px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;color:var(--gold-2);background:rgba(255,255,255,.06);border:1px solid rgba(232,200,122,.35);transition:background .15s,transform .15s}
+#designer-toggle:hover{background:rgba(255,255,255,.1)}
+#designer-toggle:active{transform:scale(.97)}
+#designer-toggle .toggle-icon{font-size:11px;line-height:1}
+#designer.collapsed{padding-bottom:calc(8px + var(--safe-b))}
+#designer.collapsed .designer-bar{margin-bottom:0}
+#designer.collapsed .handle{margin-bottom:4px}
+#designer.collapsed #designer-body{display:none}
 .styles{display:flex;gap:8px;margin-bottom:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding:2px 1px 6px;scroll-snap-type:x proximity}
 .styles::-webkit-scrollbar{height:4px}
 .styles::-webkit-scrollbar-thumb{background:rgba(232,200,122,.35);border-radius:4px}
@@ -180,7 +189,9 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
 }
 #float-btn:hover{filter:brightness(1.06)}
 #float-btn:active{transform:translateY(1px) scale(.99)}
-#float-btn[disabled]{opacity:.5;filter:grayscale(.3);cursor:default}
+#float-btn[disabled],#float-btn[aria-disabled="true"]{opacity:.5;filter:grayscale(.3);cursor:default}
+#float-btn[disabled]:hover,#float-btn[aria-disabled="true"]:hover{filter:grayscale(.3)}
+#float-btn[disabled]:active,#float-btn[aria-disabled="true"]:active{transform:none}
 #float-btn svg{width:22px;height:22px}
 
 /* popup + toast */
@@ -203,6 +214,9 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
     left:auto;right:28px;bottom:28px;width:400px;border-radius:22px;
     border:1px solid rgba(232,200,122,.38);
     padding:14px 18px 16px;
+  }
+  #designer.collapsed{
+    width:auto;min-width:240px;padding:10px 14px;
   }
   .photo-note{font-size:11px}
   .handle{display:none}
@@ -411,7 +425,14 @@ html.no-splash #splash{display:none!important}
 
   <aside id="designer">
     <div class="handle"></div>
-    <h2>แต่งกระทงของฉัน</h2>
+    <div class="designer-bar">
+      <h2 id="designer-title">แต่งกระทงของฉัน</h2>
+      <button type="button" id="designer-toggle" aria-expanded="true" aria-controls="designer-body">
+        <span class="toggle-icon" aria-hidden="true">▾</span>
+        <span class="toggle-lab">ย่อ</span>
+      </button>
+    </div>
+    <div id="designer-body">
     <div class="styles" id="style-row"></div>
     <div class="colors" id="color-row" role="listbox" aria-label="สีดอกไม้"></div>
     <div class="fields">
@@ -437,10 +458,11 @@ html.no-splash #splash{display:none!important}
         <p class="photo-note">รูปจะแสดงบนอุปกรณ์ของคุณเท่านั้น</p>
       </div>
     </div>
-    <button type="button" id="float-btn">
+    <button type="button" id="float-btn" aria-disabled="true">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(0,1)"><ellipse cx="12" cy="16" rx="7" ry="3" fill="#3a7a28"/><path d="M12 14c2-3 5-4 6-7" stroke="#9ad06a" stroke-width="1.2" fill="none"/><path d="M12 8l.6-5 .7 5" stroke="#ffd56b" stroke-width="1.4" stroke-linecap="round"/><circle cx="12.6" cy="3" r="1.2" fill="#ff9f43"/></g></svg>
       ลอยกระทง
     </button>
+    </div>
   </aside>
 </div>
 
@@ -490,15 +512,9 @@ const COLORS = [
   {id:"red",    hex:"#ff6b6b"},
   {id:"gold",   hex:"#e8c87a"}
 ];
-const SEEDS = [
-  {style:"hlongtur", color:"#ff8fab", name:"น้องน้ำ",   wish:"ขอให้สุขภาพแข็งแรง",           depth:.18, x:.22, vx:.012},
-  {style:"banana",   color:"#ffd56b", name:"คุณดาว",    wish:"ขอให้ครอบครัวมีความสุข",       depth:.42, x:.68, vx:-.01},
-  {style:"coconut",  color:"#e8a0bf", name:"มิตร",      wish:"ขอให้สมหวังดังตั้งใจ",         depth:.58, x:.40, vx:.008},
-  {style:"saipay",   color:"#fff1a8", name:"สายลม",     wish:"ขอให้โลกใบนี้อยู่เย็นเป็นสุข", depth:.30, x:.86, vx:-.014},
-  {style:"lotus",    color:"#c9a0ff", name:"แสงเดือน",  wish:"ขอให้ความทุกข์ลอยไปกับน้ำ",   depth:.72, x:.14, vx:.006},
-  {style:"banana",   color:"#ff9f56", name:"สายใจ",     wish:"ขอให้พบแต่สิ่งดี ๆ",           depth:.50, x:.54, vx:-.007}
-];
-const STORAGE_KEY = "loykrathong-v1";
+const STORAGE_KEY = "loykrathong-v2";
+const PANEL_KEY = "loykrathong-panel-v1";
+const OLD_STORAGE_KEYS = ["loykrathong-v1"];
 const MAX_SAVED = 30;
 const DEMO = /(?:\?|&)demo=1(?:&|$)/.test(location.search);
 const FORCE_SPLASH = /(?:\?|&)splash=1(?:&|$)/.test(location.search);
@@ -832,18 +848,23 @@ function buildDesigner(){
     $("wish-count").textContent=($("inp-wish").value.length)+"/80";
   });
   bindPhotoField();
+  $("inp-name").addEventListener("input", syncFloatBtn);
   $("float-btn").addEventListener("click", onFloat);
+  bindDesignerToggle();
+  syncFloatBtn();
   syncColorVisibility();
 }
 
 /* ---- fleet ---- */
 function makeItem(opt){
+  const name=(opt.name||"").trim();
+  if(!name) return null;
   const style = styleById(opt.style) ? opt.style : "lotus";
   const it={
     id: opt.id || uid(),
     style,
     color: opt.color || "#ff8fab",
-    name: (opt.name||"").trim() || "ผู้ลอยกระทง",
+    name,
     wish: (opt.wish||"").trim() || "ขอให้มีความสุข",
     photo: validPhoto(opt.photo) ? opt.photo : null,
     isUser: !!opt.isUser,
@@ -898,13 +919,19 @@ function persist(){
     }
   }
 }
+function wipeOldStorage(){
+  OLD_STORAGE_KEYS.forEach(k=>{
+    try{ localStorage.removeItem(k); }catch(e){}
+  });
+}
 function loadUser(){
   try{
     const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
     if(!Array.isArray(raw)) return;
     raw.slice(-MAX_SAVED).forEach(u=>{
+      if(!(u && String(u.name||"").trim())) return;
       const it=makeItem({...u, isUser:true, launching:false, depth:Math.min(0.85, Math.max(0.12, u.depth||0.4))});
-      userItems.push(it);
+      if(it) userItems.push(it);
     });
   }catch(e){}
 }
@@ -912,11 +939,21 @@ function updateCount(){
   $("count-num").textContent=String(userItems.length);
 }
 
+function syncFloatBtn(){
+  const ok=!!$("inp-name").value.trim();
+  const btn=$("float-btn");
+  btn.setAttribute("aria-disabled", ok?"false":"true");
+}
 function onFloat(){
+  const name=$("inp-name").value.trim();
+  if(!name){
+    toast("กรุณาใส่ชื่อก่อนลอยกระทง");
+    try{ $("inp-name").focus(); }catch(e){}
+    return;
+  }
   const now=performance.now();
   if(now-lastFloat<600) return;
   lastFloat=now;
-  const name=$("inp-name").value.trim();
   const wish=$("inp-wish").value.trim();
   const it=makeItem({
     style:selectedStyle, color:selectedColor, photo:selectedPhoto,
@@ -925,6 +962,7 @@ function onFloat(){
     vx:(Math.random()<.5?-1:1)*(0.01+Math.random()*0.01),
     labelUntil: now+8000
   });
+  if(!it) return;
   userItems.push(it);
   persist();
   updateCount();
@@ -969,8 +1007,8 @@ function layoutItem(it, now){
   const wr=waterEl.getBoundingClientRect();
   const sheetTop = window.innerWidth>=860 ? window.innerHeight : designerEl.getBoundingClientRect().top;
   const visH = Math.max(120, Math.min(wr.height, sheetTop - wr.top));
-  const itemW = it.el.offsetWidth || (isImgStyle(it.style)?124:96);
-  const itemH = it.el.offsetHeight || 120;
+  const itemW = it.el.offsetWidth || (isImgStyle(it.style)?87:67);
+  const itemH = it.el.offsetHeight || 84;
   const farY  = isImgStyle(it.style) ? 12 : 4;
   const reserved = Math.min(itemH * 0.88, Math.max(70, visH * 0.58));
   const nearY = Math.max(farY + 24, visH - reserved);
@@ -1169,14 +1207,43 @@ function setupSplash(){
   }
 }
 
+/* ---- collapsible designer ---- */
+function setDesignerCollapsed(collapsed, persistState){
+  const el=designerEl;
+  const btn=$("designer-toggle");
+  if(!el || !btn) return;
+  el.classList.toggle("collapsed", !!collapsed);
+  btn.setAttribute("aria-expanded", collapsed?"false":"true");
+  const icon=btn.querySelector(".toggle-icon");
+  const lab=btn.querySelector(".toggle-lab");
+  if(icon) icon.textContent=collapsed?"▴":"▾";
+  if(lab) lab.textContent=collapsed?"ขยาย":"ย่อ";
+  btn.setAttribute("aria-label", collapsed?"ขยายแถบแต่งกระทง":"ย่อแถบแต่งกระทง");
+  if(persistState!==false){
+    try{ localStorage.setItem(PANEL_KEY, collapsed?"collapsed":"expanded"); }catch(e){}
+  }
+  measureSheet();
+}
+function bindDesignerToggle(){
+  let saved=null;
+  try{ saved=localStorage.getItem(PANEL_KEY); }catch(e){}
+  setDesignerCollapsed(saved==="collapsed", false);
+  const btn=$("designer-toggle");
+  if(!btn) return;
+  btn.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    setDesignerCollapsed(!designerEl.classList.contains("collapsed"));
+  });
+}
+
 /* ---- boot ---- */
 function boot(){
 
   buildStars();
   buildLanterns();
   buildSparkles();
+  wipeOldStorage();
   buildDesigner();
-  SEEDS.forEach(s=>makeItem({...s, launching:false}));
   loadUser();
   updateCount();
   measureSheet();
@@ -1197,7 +1264,7 @@ function boot(){
       labelUntil: performance.now()+20000
     });
     // not persisted
-    it.el.classList.add("show-label");
+    if(it) it.el.classList.add("show-label");
   }
   requestAnimationFrame(loop);
 }
