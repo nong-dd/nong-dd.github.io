@@ -19,7 +19,8 @@
   var demo=/(?:\?|&)demo=1(?:&|$)/.test(q);
   var force=/(?:\?|&)splash=1(?:&|$)/.test(q);
   var blessing=/(?:\?|&)blessing=1(?:&|$)/.test(q);
-  if((demo || blessing) && !force) document.documentElement.classList.add("no-splash");
+  var wishes=/(?:\?|&)wishes=1(?:&|$)/.test(q);
+  if((demo || blessing || wishes) && !force) document.documentElement.classList.add("no-splash");
 })();
 </script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230b1730'/%3E%3Ccircle cx='20' cy='11' r='7' fill='%23f3e0a8'/%3E%3Cellipse cx='16' cy='24' rx='9' ry='4' fill='%233a7a28'/%3E%3Cpath d='M16 20l1-5 1 5' stroke='%23ffd56b' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
@@ -140,6 +141,101 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
 #counter{display:flex;flex-direction:column;align-items:flex-end;background:rgba(8,12,24,.55);border:1px solid rgba(232,200,122,.3);backdrop-filter:blur(8px);border-radius:14px;padding:6px 10px 5px;min-width:86px}
 #counter .lbl{font-size:10px;color:rgba(246,238,222,.7);letter-spacing:.02em}
 #counter .num{font-family:var(--display);font-size:22px;line-height:1.1;color:var(--gold-2);font-weight:700}
+.topbar-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 100px)}
+#btn-wishes{
+  display:inline-flex;align-items:center;gap:6px;
+  height:40px;padding:0 12px 0 10px;border-radius:999px;
+  background:rgba(8,12,24,.62);
+  border:1px solid rgba(232,200,122,.5);
+  color:var(--gold-2);
+  font-size:13px;font-weight:700;letter-spacing:.02em;
+  backdrop-filter:blur(8px);
+  box-shadow:0 2px 10px rgba(0,0,0,.28);
+  transition:background .2s,transform .15s,border-color .2s,box-shadow .2s;
+  white-space:nowrap;
+}
+#btn-wishes:hover{background:rgba(20,28,50,.78)}
+#btn-wishes:active{transform:scale(.96)}
+#btn-wishes.on{border-color:#f0d48a;box-shadow:0 0 12px rgba(232,200,122,.4)}
+#btn-wishes svg{width:18px;height:18px;flex:0 0 18px}
+@media (max-width:360px){
+  #btn-wishes{font-size:12px;padding:0 10px 0 8px;gap:5px}
+}
+
+/* ---- wish book modal ---- */
+#wish-book{
+  position:fixed;inset:0;z-index:80;
+  display:none;align-items:center;justify-content:center;
+  padding:max(16px, env(safe-area-inset-top,0px)) 16px max(16px, env(safe-area-inset-bottom,0px));
+  font-family:var(--font);
+}
+#wish-book.on{display:flex}
+#wish-backdrop{
+  position:absolute;inset:0;
+  background:rgba(4,8,18,.64);
+  backdrop-filter:blur(7px);
+}
+#wish-panel{
+  position:relative;z-index:1;
+  width:min(400px,100%);
+  max-height:min(86vh,720px);
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,rgba(16,22,42,.98),rgba(9,12,24,.98));
+  border:1px solid rgba(232,200,122,.42);
+  border-radius:18px;
+  box-shadow:0 24px 64px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04) inset;
+  overflow:hidden;
+}
+#wish-close{
+  position:absolute;top:8px;right:8px;
+  width:36px;height:36px;border-radius:10px;
+  display:grid;place-items:center;
+  color:rgba(246,238,222,.88);
+  font-size:24px;line-height:1;font-weight:400;
+}
+#wish-close:hover{background:rgba(255,255,255,.08)}
+#wish-close:focus-visible{outline:2px solid var(--gold-2);outline-offset:2px}
+.wish-head{padding:20px 48px 10px 20px}
+.wish-kicker{display:flex;align-items:center;gap:8px;color:var(--gold-2);margin-bottom:2px}
+.wish-kicker svg{width:22px;height:22px;flex:0 0 22px}
+#wish-title{font-family:var(--display);font-weight:700;font-size:26px;color:var(--gold-2);line-height:1.2;text-shadow:0 2px 10px rgba(0,0,0,.4)}
+#wish-sub{margin-top:4px;font-size:13px;color:rgba(246,238,222,.7)}
+#wish-list{
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:4px 14px 16px;
+  overscroll-behavior:contain;
+  flex:1 1 auto;
+  touch-action:pan-y;
+}
+.wish-card{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:12px;
+  border:1px solid rgba(232,200,122,.22);
+  border-radius:12px;
+  margin-bottom:8px;
+  background:rgba(255,255,255,.03);
+}
+.wish-avatar{
+  width:44px;height:44px;border-radius:50%;flex:0 0 44px;
+  overflow:hidden;background:rgba(20,28,50,.9);
+  border:2px solid rgba(232,200,122,.55);
+  box-shadow:0 0 0 1px rgba(232,200,122,.18);
+  display:grid;place-items:center;
+}
+.wish-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.wish-avatar-k{background:radial-gradient(circle at 50% 40%,rgba(40,55,90,.95),rgba(10,14,28,.95))}
+.wish-kthumb{width:34px;height:34px;display:grid;place-items:center;pointer-events:none}
+.wish-kthumb svg,.wish-kthumb img{width:34px;height:34px;object-fit:contain;display:block;max-width:100%}
+.wish-body{min-width:0;flex:1 1 auto}
+.wish-name{font-weight:700;font-size:14px;color:#f3c6a0;line-height:1.3;word-break:break-word}
+.wish-time{font-size:11px;color:rgba(246,238,222,.55);margin-top:2px}
+.wish-text{font-size:13px;line-height:1.55;color:#f6eede;margin-top:6px;white-space:pre-wrap;word-break:break-word}
+.wish-empty{text-align:center;padding:28px 12px 20px;color:rgba(246,238,222,.6);font-size:13px}
+html.wish-lock,html.wish-lock body{overflow:hidden}
+@media (min-width:860px){
+  #wish-panel{width:min(420px,92vw);max-height:min(80vh,720px)}
+  #wish-title{font-size:30px}
+}
 
 /* ---- designer ---- */
 #designer{position:absolute;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,rgba(14,20,40,.86),rgba(8,12,24,.94));border-top:1px solid rgba(232,200,122,.38);border-radius:22px 22px 0 0;padding:6px 14px calc(10px + var(--safe-b));backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 -12px 40px rgba(0,0,0,.4);transition:padding .2s ease}
@@ -663,6 +759,7 @@ html.no-splash #splash{display:none!important}
   <div id="vignette"></div>
 
   <div id="topbar">
+    <div class="topbar-left">
     <div class="iconbtns">
       <button class="iconbtn" id="btn-sound" type="button" aria-label="เปิดเพลง" aria-pressed="false" title="เปิดเพลง">
         <svg id="ic-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="m16 10 5 5M21 10l-5 5"/></svg>
@@ -671,6 +768,11 @@ html.no-splash #splash{display:none!important}
       <button class="iconbtn" id="btn-share" type="button" aria-label="แชร์หน้านี้" title="แชร์">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="m8.2 13.2 7.6 4.2M15.8 6.6l-7.6 4.2"/></svg>
       </button>
+    </div>
+    <button type="button" class="wishes-btn" id="btn-wishes" aria-haspopup="dialog" aria-controls="wish-book" aria-expanded="false" title="สมุดคำอวยพร">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v16h5.5A2.5 2.5 0 0 1 20 21.5z"/></svg>
+      สมุดคำอวยพร
+    </button>
     </div>
     <div id="counter" aria-live="polite">
       <span class="lbl">กระทงที่ลอยแล้ว</span>
@@ -737,6 +839,21 @@ html.no-splash #splash{display:none!important}
     </button>
     </div>
   </aside>
+</div>
+
+<div id="wish-book" hidden role="dialog" aria-modal="true" aria-labelledby="wish-title" aria-describedby="wish-sub" aria-hidden="true">
+  <div id="wish-backdrop"></div>
+  <div id="wish-panel" role="document">
+    <button type="button" id="wish-close" aria-label="ปิด">×</button>
+    <div class="wish-head">
+      <div class="wish-kicker">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v16h5.5A2.5 2.5 0 0 1 20 21.5z"/></svg>
+        <h2 id="wish-title">สมุดคำอวยพร</h2>
+      </div>
+      <p id="wish-sub">0 คำอวยพรบนสายน้ำ</p>
+    </div>
+    <div id="wish-list"></div>
+  </div>
 </div>
 
 <div id="splash" role="dialog" aria-modal="true" aria-labelledby="splash-title" aria-describedby="splash-sub">
@@ -826,7 +943,8 @@ const MAX_SAVED = 30;
 const DEMO = /(?:\?|&)demo=1(?:&|$)/.test(location.search);
 const FORCE_SPLASH = /(?:\?|&)splash=1(?:&|$)/.test(location.search);
 const FORCE_BLESSING = /(?:\?|&)blessing=1(?:&|$)/.test(location.search);
-const SHOW_SPLASH = FORCE_SPLASH || (!DEMO && !FORCE_BLESSING);
+const FORCE_WISHES = /(?:\?|&)wishes=1(?:&|$)/.test(location.search);
+const SHOW_SPLASH = FORCE_SPLASH || (!DEMO && !FORCE_BLESSING && !FORCE_WISHES);
 const FB_CONFIG = {
   apiKey: "AIzaSyBUtN2ktWNtlekjqN122KeZNpIb5hz69UQ",
   authDomain: "mfusion-loykrathong.firebaseapp.com",
@@ -1236,13 +1354,15 @@ function makeItem(opt){
   const style = styleById(opt.style) ? opt.style : "lotus";
   const photo = opt.fromRemote ? (validSharedPhoto(opt.photo) ? opt.photo : null)
                                : (validPhoto(opt.photo) ? opt.photo : null);
+  const entered=safeWish(opt.wish);
   const it={
     id: opt.id || uid(),
     fbKey: opt.fbKey || null,
     style,
     color: validColor(opt.color),
     name,
-    wish: safeWish(opt.wish) || "ขอให้มีความสุข",
+    wish: entered || "ขอให้มีความสุข",
+    wishEntered: entered,
     photo,
     isUser: !!opt.isUser,
     isDemo: !!opt.isDemo,
@@ -1346,6 +1466,7 @@ function updateCount(){
     n=userItems.length;
   }
   $("count-num").textContent=String(n);
+  if(wishBookOpen) renderWishList();
 }
 
 function syncFloatBtn(){
@@ -1464,6 +1585,194 @@ function loop(ts){
   for(let i=0;i<fleet.length;i++) layoutItem(fleet[i], now);
   lastTs=ts;
   requestAnimationFrame(loop);
+}
+
+/* ---- wish book (สมุดคำอวยพร) ---- */
+const THAI_MONTHS_SHORT = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+let wishBookOpen = false;
+
+function formatWishTime(t){
+  const n=Number(t);
+  if(!n || !Number.isFinite(n)) return "";
+  const d=new Date(n);
+  if(isNaN(d.getTime())) return "";
+  try{
+    const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Bangkok",day:"numeric",month:"numeric",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(d);
+    const get=(type)=>((parts.find(p=>p.type===type)||{}).value||"");
+    const day=String(parseInt(get("day"),10));
+    const mon=THAI_MONTHS_SHORT[parseInt(get("month"),10)-1] || "";
+    const hh=get("hour");
+    const mm=get("minute");
+    if(!day || !mon || !hh || !mm) return "";
+    return day+" "+mon+" · "+hh+":"+mm+" น.";
+  }catch(e){
+    return "";
+  }
+}
+function collectWishEntries(){
+  const list=[];
+  const seen=new Set();
+  const add=(ent)=>{
+    if(!ent || !ent.name) return;
+    const id=ent.id;
+    if(id){
+      if(seen.has(id)) return;
+      seen.add(id);
+    }
+    list.push(ent);
+  };
+  remotePool.forEach(p=>{
+    if(!p || !p.data) return;
+    add({
+      id: p.key,
+      name: p.data.name,
+      wish: p.data.wish || "",
+      photo: p.data.photo || null,
+      style: p.data.style,
+      color: p.data.color,
+      t: p.data.t || 0,
+      fromRemote: true
+    });
+  });
+  userItems.forEach(u=>{
+    if(!u) return;
+    add({
+      id: u.fbKey || u.id,
+      name: u.name,
+      wish: ("wishEntered" in u) ? (u.wishEntered || "") : (u.wish || ""),
+      photo: u.photo || null,
+      style: u.style,
+      color: u.color,
+      t: u.t || 0,
+      fromRemote: false
+    });
+  });
+  fleet.forEach(it=>{
+    if(!it || !it.isDemo) return;
+    add({
+      id: it.id,
+      name: it.name,
+      wish: ("wishEntered" in it) ? (it.wishEntered || "") : (it.wish || ""),
+      photo: it.photo || null,
+      style: it.style,
+      color: it.color,
+      t: it.t || 0,
+      fromRemote: false
+    });
+  });
+  list.sort((a,b)=>(b.t||0)-(a.t||0));
+  return list;
+}
+function renderWishAvatar(ent){
+  const av=document.createElement("div");
+  av.className="wish-avatar";
+  const raw=ent && ent.photo;
+  const photo=(validSharedPhoto(raw) || validPhoto(raw)) ? raw : null;
+  if(photo){
+    const img=document.createElement("img");
+    img.alt="";
+    img.src=photo;
+    av.appendChild(img);
+    return av;
+  }
+  av.classList.add("wish-avatar-k");
+  const thumb=document.createElement("div");
+  thumb.className="wish-kthumb";
+  thumb.innerHTML=krathongVisual(ent && ent.style, ent && ent.color);
+  av.appendChild(thumb);
+  return av;
+}
+function renderWishList(){
+  const box=$("wish-list");
+  const sub=$("wish-sub");
+  if(!box) return;
+  const entries=collectWishEntries();
+  if(sub) sub.textContent=entries.length+" คำอวยพรบนสายน้ำ";
+  const keep=box.scrollTop;
+  box.replaceChildren();
+  if(!entries.length){
+    const empty=document.createElement("div");
+    empty.className="wish-empty";
+    empty.textContent="ยังไม่มีคำอวยพรบนสายน้ำ";
+    box.appendChild(empty);
+    return;
+  }
+  const frag=document.createDocumentFragment();
+  entries.forEach(ent=>{
+    const row=document.createElement("article");
+    row.className="wish-card";
+    row.appendChild(renderWishAvatar(ent));
+    const body=document.createElement("div");
+    body.className="wish-body";
+    const name=document.createElement("div");
+    name.className="wish-name";
+    name.textContent=ent.name;
+    body.appendChild(name);
+    const when=formatWishTime(ent.t);
+    if(when){
+      const time=document.createElement("div");
+      time.className="wish-time";
+      time.textContent=when;
+      body.appendChild(time);
+    }
+    const wish=safeWish(ent.wish);
+    if(wish){
+      const w=document.createElement("div");
+      w.className="wish-text";
+      w.textContent=wish;
+      body.appendChild(w);
+    }
+    row.appendChild(body);
+    frag.appendChild(row);
+  });
+  box.appendChild(frag);
+  box.scrollTop=keep;
+}
+function openWishBook(){
+  const root=$("wish-book");
+  if(!root) return;
+  wishBookOpen=true;
+  renderWishList();
+  root.hidden=false;
+  root.classList.add("on");
+  root.setAttribute("aria-hidden","false");
+  document.documentElement.classList.add("wish-lock");
+  const btn=$("btn-wishes");
+  if(btn){
+    btn.classList.add("on");
+    btn.setAttribute("aria-expanded","true");
+  }
+  const close=$("wish-close");
+  if(close) try{ close.focus(); }catch(e){}
+}
+function closeWishBook(){
+  const root=$("wish-book");
+  if(!root || !wishBookOpen) return;
+  wishBookOpen=false;
+  root.classList.remove("on");
+  root.hidden=true;
+  root.setAttribute("aria-hidden","true");
+  document.documentElement.classList.remove("wish-lock");
+  const btn=$("btn-wishes");
+  if(btn){
+    btn.classList.remove("on");
+    btn.setAttribute("aria-expanded","false");
+    try{ btn.focus(); }catch(e){}
+  }
+}
+function bindWishBook(){
+  const btn=$("btn-wishes");
+  const close=$("wish-close");
+  const backdrop=$("wish-backdrop");
+  if(btn) btn.addEventListener("click", (e)=>{ e.stopPropagation(); openWishBook(); });
+  if(close) close.addEventListener("click", (e)=>{ e.stopPropagation(); closeWishBook(); });
+  if(backdrop) backdrop.addEventListener("click", closeWishBook);
+  document.addEventListener("keydown", (e)=>{
+    if(e.key==="Escape" && wishBookOpen){
+      e.preventDefault();
+      closeWishBook();
+    }
+  });
 }
 
 /* ---- share / sound ---- */
@@ -2322,6 +2631,7 @@ function boot(){
   window.addEventListener("resize", measureSheet);
   $("btn-share").addEventListener("click", onShare);
   $("btn-sound").addEventListener("click", toggleSound);
+  bindWishBook();
   bindBlessing();
   bindFirstGesture();
   startSound();
@@ -2332,7 +2642,7 @@ function boot(){
       style:"hlongtur", color:"#ff8fab",
       photo:fakeAvatar(),
       name:"ผู้มาเยือน", wish:"ขอให้สุขใจในวันลอยกระทง",
-      isDemo:true, launching:false, dropT:1,
+      isDemo:true, launching:false, dropT:1, t:Date.now(),
       x:0.50, depth:0.22, settle:0.22, vx:0.01,
       labelUntil: performance.now()+20000
     });
@@ -2342,6 +2652,9 @@ function boot(){
   requestAnimationFrame(loop);
   if(FORCE_BLESSING){
     startBlessing("blessing-demo");
+  }
+  if(FORCE_WISHES){
+    openWishBook();
   }
   void initShared().then(ok=>{
     if(!ok && !DEMO){
