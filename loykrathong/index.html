@@ -519,6 +519,21 @@ const MAX_SAVED = 30;
 const DEMO = /(?:\?|&)demo=1(?:&|$)/.test(location.search);
 const FORCE_SPLASH = /(?:\?|&)splash=1(?:&|$)/.test(location.search);
 const SHOW_SPLASH = FORCE_SPLASH || !DEMO;
+const FB_CONFIG = {
+  apiKey: "AIzaSyBUtN2ktWNtlekjqN122KeZNpIb5hz69UQ",
+  authDomain: "mfusion-loykrathong.firebaseapp.com",
+  databaseURL: "https://mfusion-loykrathong-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "mfusion-loykrathong",
+  storageBucket: "mfusion-loykrathong.firebasestorage.app",
+  messagingSenderId: "377888863168",
+  appId: "1:377888863168:web:2f9d876c0c754425cbce25"
+};
+const FB_SDK_APP = "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+const FB_SDK_DB  = "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+const FB_MAX_POOL = 60;
+const FB_MAX_SCREEN = 25;
+const FB_CYCLE_MS = 8000;
+const FB_PHOTO_MAX = 15000;
 
 
 let selectedStyle = "lotus";
@@ -527,6 +542,15 @@ let selectedPhoto = null;
 let fleet = [];
 let userItems = [];
 let lastFloat = 0;
+let fbReady = false;
+let fbSyncing = true;
+let fbCycleTimer = 0;
+let seenKeys = new Set();
+let myKeys = new Set();
+let remotePool = [];
+let pendingLocal = [];
+let publishQueue = [];
+let fbApi = null; // {pushFn}
 let popupTimer = 0;
 let audio = {ctx:null, on:false, wanted:true, nodes:[]};
 
@@ -554,6 +578,20 @@ function krathongVisual(style, color){
 }
 function validPhoto(p){
   return typeof p==="string" && p.length<180000 && /^data:image\/(jpeg|jpg|png|webp);base64,/.test(p);
+}
+function validSharedPhoto(p){
+  return typeof p==="string" && p.length>0 && p.length<=20000
+    && /^(data:image\/jpeg;base64,|data:image\/png;base64,)/.test(p)
+    && p.indexOf("\\")===-1 && p.indexOf("<")===-1 && p.indexOf(">")===-1;
+}
+function validColor(c){
+  return (typeof c==="string" && /^#[0-9A-Fa-f]{6}$/.test(c)) ? c : "#ff8fab";
+}
+function safeName(s, max){
+  return String(s||"").trim().slice(0, max||40);
+}
+function safeWish(s){
+  return String(s||"").trim().slice(0, 80);
 }
 
 function blossoms(color, cy, n, spread, r){
@@ -786,6 +824,34 @@ function downscalePhoto(file){
     img.src=url;
   });
 }
+function compressSharePhoto(src){
+  return new Promise((resolve)=>{
+    if(!src){ resolve(null); return; }
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const w=img.naturalWidth||img.width||1;
+        const h=img.naturalHeight||img.height||1;
+        const side=Math.min(w,h);
+        const sx=(w-side)/2, sy=(h-side)/2;
+        const c=document.createElement("canvas");
+        c.width=c.height=96;
+        const ctx=c.getContext("2d");
+        ctx.fillStyle="#1a1420";
+        ctx.fillRect(0,0,96,96);
+        ctx.drawImage(img,sx,sy,side,side,0,0,96,96);
+        let q=0.7, out=c.toDataURL("image/jpeg", q);
+        while(out.length>FB_PHOTO_MAX && q>0.35){
+          q=Math.max(0.35, q-0.1);
+          out=c.toDataURL("image/jpeg", q);
+        }
+        resolve((out.length<=FB_PHOTO_MAX && validSharedPhoto(out)) ? out : null);
+      }catch(err){ resolve(null); }
+    };
+    img.onerror=()=>resolve(null);
+    img.src=src;
+  });
+}
 function clearPhoto(){
   selectedPhoto=null;
   const inp=$("inp-photo");
@@ -857,18 +923,22 @@ function buildDesigner(){
 
 /* ---- fleet ---- */
 function makeItem(opt){
-  const name=(opt.name||"").trim();
+  const name=safeName(opt.name, 40);
   if(!name) return null;
   const style = styleById(opt.style) ? opt.style : "lotus";
+  const photo = opt.fromRemote ? (validSharedPhoto(opt.photo) ? opt.photo : null)
+                               : (validPhoto(opt.photo) ? opt.photo : null);
   const it={
     id: opt.id || uid(),
+    fbKey: opt.fbKey || null,
     style,
-    color: opt.color || "#ff8fab",
+    color: validColor(opt.color),
     name,
-    wish: (opt.wish||"").trim() || "ขอให้มีความสุข",
-    photo: validPhoto(opt.photo) ? opt.photo : null,
+    wish: safeWish(opt.wish) || "ขอให้มีความสุข",
+    photo,
     isUser: !!opt.isUser,
     isDemo: !!opt.isDemo,
+    t: opt.t || 0,
     x: opt.x ?? (0.35+Math.random()*0.3),
     depth: opt.depth ?? 0,
     vx: opt.vx ?? (Math.random()<.5?-1:1)*(0.008+Math.random()*0.012),
@@ -883,16 +953,39 @@ function makeItem(opt){
   const el=document.createElement("div");
   el.className="kitem"+(isImgStyle(it.style)?" kimg":"");
   el.dataset.id=it.id;
-  const av=it.photo ? `<img class="kavatar" alt="" src="${it.photo}">` : "";
-  el.innerHTML=`<div class="klabel"><b></b><span></span></div><div class="ksvg">${krathongVisual(it.style,it.color)}</div>${av}`;
-  const lab=el.querySelector(".klabel");
-  lab.querySelector("b").textContent=it.name;
-  lab.querySelector("span").textContent=it.wish;
+  if(it.fbKey) el.dataset.fbKey=it.fbKey;
+  const lab=document.createElement("div");
+  lab.className="klabel";
+  const b=document.createElement("b");
+  b.textContent=it.name;
+  const sp=document.createElement("span");
+  sp.textContent=it.wish;
+  lab.appendChild(b);
+  lab.appendChild(sp);
+  const ksvg=document.createElement("div");
+  ksvg.className="ksvg";
+  ksvg.innerHTML=krathongVisual(it.style, it.color);
+  el.appendChild(lab);
+  el.appendChild(ksvg);
+  if(it.photo){
+    const av=document.createElement("img");
+    av.className="kavatar";
+    av.alt="";
+    av.src=it.photo;
+    el.appendChild(av);
+  }
   el.addEventListener("click",(e)=>{ e.stopPropagation(); showPopup(it, el); });
   it.el=el;
   fleetEl.appendChild(el);
   fleet.push(it);
   return it;
+}
+function removeFromFleet(it){
+  if(!it) return;
+  if(it.el && it.el.parentNode) it.el.parentNode.removeChild(it.el);
+  fleet=fleet.filter(x=>x!==it);
+  const rec=remotePool.find(p=>p.it===it);
+  if(rec) rec.it=null;
 }
 
 function serializeItem(u, withPhoto){
@@ -936,7 +1029,14 @@ function loadUser(){
   }catch(e){}
 }
 function updateCount(){
-  $("count-num").textContent=String(userItems.length);
+  let n;
+  if(fbReady){
+    const pending=userItems.filter(u=>u.isUser && !u.isDemo && !u.fbKey).length;
+    n=seenKeys.size + pending;
+  }else{
+    n=userItems.length;
+  }
+  $("count-num").textContent=String(n);
 }
 
 function syncFloatBtn(){
@@ -954,10 +1054,11 @@ function onFloat(){
   const now=performance.now();
   if(now-lastFloat<600) return;
   lastFloat=now;
-  const wish=$("inp-wish").value.trim();
+  const wish=safeWish($("inp-wish").value);
+  const tMs=Date.now();
   const it=makeItem({
     style:selectedStyle, color:selectedColor, photo:selectedPhoto,
-    name, wish, isUser:true, launching:true, dropT:0,
+    name:safeName(name,40), wish, isUser:true, launching:true, dropT:0, t:tMs,
     x:0.38+Math.random()*0.24, depth:0, settle:0.55+Math.random()*0.2,
     vx:(Math.random()<.5?-1:1)*(0.01+Math.random()*0.01),
     labelUntil: now+8000
@@ -965,10 +1066,12 @@ function onFloat(){
   if(!it) return;
   userItems.push(it);
   persist();
+  pendingLocal.push(it);
   updateCount();
   $("inp-wish").value="";
   $("wish-count").textContent="0/80";
   toast("ลอยกระทงแล้ว ขอให้สมหวัง");
+  publishKrathong(it);
 }
 
 function showPopup(it, el){
@@ -1236,6 +1339,258 @@ function bindDesignerToggle(){
   });
 }
 
+/* ---- shared firebase fleet ---- */
+function normalizeRemote(val){
+  if(!val || typeof val!=="object") return null;
+  const name=safeName(val.name, 40);
+  if(!name) return null;
+  const ts=Number(val.t);
+  if(!Number.isFinite(ts)) return null;
+  return {
+    name,
+    wish: safeWish(val.wish),
+    style: styleById(val.style) ? val.style : "lotus",
+    color: validColor(val.color),
+    t: ts,
+    photo: validSharedPhoto(val.photo) ? val.photo : null
+  };
+}
+function noteKey(key){
+  if(!key || seenKeys.has(key)) return false;
+  seenKeys.add(key);
+  updateCount();
+  return true;
+}
+function matchPending(key, data){
+  const idx=pendingLocal.findIndex(p=>p && p.name===data.name && Number(p.t)===Number(data.t));
+  if(idx<0) return null;
+  const it=pendingLocal[idx];
+  pendingLocal.splice(idx,1);
+  it.fbKey=key;
+  if(it.el) it.el.dataset.fbKey=key;
+  myKeys.add(key);
+  noteKey(key);
+  const rec=remotePool.find(p=>p.key===key);
+  if(rec) rec.it=it;
+  else remotePool.push({key, data, it});
+  return it;
+}
+function addToPool(key, data, it){
+  let rec=remotePool.find(p=>p.key===key);
+  if(rec){
+    if(it && !rec.it) rec.it=it;
+    return rec;
+  }
+  rec={key, data, it:it||null};
+  remotePool.push(rec);
+  remotePool.sort((a,b)=>a.data.t-b.data.t);
+  while(remotePool.length>FB_MAX_POOL){
+    const old=remotePool.shift();
+    if(old && old.it && !old.it.isUser && !old.it.isDemo) removeFromFleet(old.it);
+  }
+  return rec;
+}
+function evictOldestRemote(){
+  const cand=remotePool.filter(p=>p.it && !p.it.isUser && !p.it.isDemo && !p.it.launching);
+  if(!cand.length) return false;
+  const old=cand[0];
+  removeFromFleet(old.it);
+  old.it=null;
+  return true;
+}
+function showRemote(rec, live){
+  if(!rec || rec.it) return rec && rec.it;
+  const on=remotePool.filter(p=>p.it).length;
+  if(on>=FB_MAX_SCREEN) evictOldestRemote();
+  const it=makeItem({
+    id: rec.key,
+    fbKey: rec.key,
+    fromRemote: true,
+    name: rec.data.name,
+    wish: rec.data.wish,
+    style: rec.data.style,
+    color: rec.data.color,
+    photo: rec.data.photo,
+    t: rec.data.t,
+    isUser: false,
+    launching: !!live,
+    dropT: live?0:1,
+    depth: 0.12+Math.random()*0.7,
+    x: 0.08+Math.random()*0.84,
+    settle: 0.2+Math.random()*0.55,
+    vx: (Math.random()<.5?-1:1)*(0.007+Math.random()*0.012),
+    labelUntil: performance.now()+(live?8000:12000)
+  });
+  rec.it=it||null;
+  return it;
+}
+function onRemoteKrathong(key, val, live){
+  try{
+    if(!key) return;
+    if(myKeys.has(key)){ noteKey(key); return; }
+    const data=normalizeRemote(val);
+    if(!data) return;
+    if(matchPending(key, data)) return;
+    if(seenKeys.has(key)) return;
+    noteKey(key);
+    const rec=addToPool(key, data, null);
+    if(!fbSyncing) showRemote(rec, !!live);
+  }catch(e){}
+}
+function afterInitialSync(){
+  fbSyncing=false;
+  fbReady=true;
+  const newest=remotePool.slice(-FB_MAX_SCREEN);
+  newest.forEach(r=>showRemote(r, false));
+  updateCount();
+  startCycle();
+}
+function startCycle(){
+  if(fbCycleTimer) clearInterval(fbCycleTimer);
+  fbCycleTimer=setInterval(cycleRemote, FB_CYCLE_MS);
+}
+function cycleRemote(){
+  try{
+    const hidden=remotePool.filter(p=>!p.it);
+    const shown=remotePool.filter(p=>p.it && !p.it.isUser && !p.it.isDemo && !p.it.launching && (performance.now()-p.it.born)>8000);
+    if(!hidden.length || !shown.length) return;
+    if(remotePool.filter(p=>p.it).length<FB_MAX_SCREEN && hidden.length){
+      showRemote(hidden[hidden.length-1], false);
+      return;
+    }
+    const out=shown[0];
+    const inn=hidden[Math.floor(Math.random()*hidden.length)];
+    removeFromFleet(out.it);
+    out.it=null;
+    showRemote(inn, false);
+  }catch(e){}
+}
+async function flushPublishQueue(){
+  const q=publishQueue.splice(0, publishQueue.length);
+  for(const it of q){
+    try{ await publishKrathong(it); }catch(e){}
+  }
+}
+async function publishKrathong(it){
+  if(!it || it.isDemo || DEMO) return;
+  if(!fbApi || typeof fbApi.pushFn!=="function"){
+    if(!publishQueue.includes(it)) publishQueue.push(it);
+    return;
+  }
+  try{
+    const photo=await compressSharePhoto(it.photo);
+    const payload={
+      name: safeName(it.name, 40),
+      wish: safeWish(it.wish),
+      style: it.style,
+      color: validColor(it.color),
+      t: it.t || Date.now()
+    };
+    if(!payload.name) return;
+    if(photo) payload.photo=photo;
+    const key=await fbApi.pushFn(payload);
+    if(key){
+      it.fbKey=key;
+      if(it.el) it.el.dataset.fbKey=key;
+      myKeys.add(key);
+      noteKey(key);
+      pendingLocal=pendingLocal.filter(p=>p!==it);
+      addToPool(key, payload, it);
+      updateCount();
+    }
+  }catch(e){}
+}
+
+async function startFirebaseSdk(){
+  const appMod=await import(FB_SDK_APP);
+  const dbMod=await import(FB_SDK_DB);
+  const app=appMod.initializeApp(FB_CONFIG);
+  const database=dbMod.getDatabase(app);
+  const krathongsRef=dbMod.ref(database, "krathongs");
+  fbApi={
+    pushFn: async (payload)=>{
+      const r=await dbMod.push(krathongsRef, payload);
+      return r && r.key;
+    }
+  };
+  return new Promise((resolve, reject)=>{
+    let settled=false;
+    const done=(ok, err)=>{
+      if(settled) return;
+      settled=true;
+      if(ok) resolve(true); else reject(err||new Error("firebase"));
+    };
+    try{
+      dbMod.onChildAdded(krathongsRef, snap=>{
+        try{ onRemoteKrathong(snap.key, snap.val(), !fbSyncing); }catch(e){}
+      }, err=>done(false, err));
+      dbMod.onValue(krathongsRef, ()=>{
+        afterInitialSync();
+        done(true);
+      }, err=>done(false, err), {onlyOnce:true});
+    }catch(e){ done(false, e); }
+    setTimeout(()=>{ if(!settled){ afterInitialSync(); done(true); } }, 6000);
+  });
+}
+
+async function startRestFallback(){
+  const base=FB_CONFIG.databaseURL.replace(/\/$/,"");
+  const url=base+"/krathongs.json";
+  fbApi={
+    pushFn: async (payload)=>{
+      const res=await fetch(url, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+      if(!res.ok) throw new Error("rest-push");
+      const j=await res.json();
+      return j && j.name;
+    }
+  };
+  const res=await fetch(url);
+  if(!res.ok) throw new Error("rest-get");
+  const json=await res.json();
+  if(json && typeof json==="object"){
+    Object.keys(json).forEach(k=>onRemoteKrathong(k, json[k], false));
+  }
+  afterInitialSync();
+  try{
+    const es=new EventSource(url);
+    const handle=(raw)=>{
+      try{
+        const msg=JSON.parse(raw);
+        if(!msg) return;
+        if(msg.path==="/" && msg.data && typeof msg.data==="object"){
+          Object.keys(msg.data).forEach(k=>onRemoteKrathong(k, msg.data[k], false));
+          return;
+        }
+        if(typeof msg.path==="string" && msg.path.startsWith("/") && msg.data && typeof msg.data==="object" && msg.data.name){
+          const key=msg.path.replace(/^\//,"").split("/")[0];
+          onRemoteKrathong(key, msg.data, true);
+        }
+      }catch(e){}
+    };
+    es.addEventListener("put", ev=>handle(ev.data));
+    es.addEventListener("patch", ev=>handle(ev.data));
+    es.onerror=()=>{};
+  }catch(e){}
+  return true;
+}
+
+async function initShared(){
+  try{
+    await startFirebaseSdk();
+    await flushPublishQueue();
+    return true;
+  }catch(e){}
+  try{
+    await startRestFallback();
+    await flushPublishQueue();
+    return true;
+  }catch(e){}
+  fbReady=false;
+  fbSyncing=false;
+  fbApi=null;
+  return false;
+}
+
 /* ---- boot ---- */
 function boot(){
 
@@ -1244,7 +1599,6 @@ function boot(){
   buildSparkles();
   wipeOldStorage();
   buildDesigner();
-  loadUser();
   updateCount();
   measureSheet();
   window.addEventListener("resize", measureSheet);
@@ -1263,10 +1617,18 @@ function boot(){
       x:0.50, depth:0.22, settle:0.22, vx:0.01,
       labelUntil: performance.now()+20000
     });
-    // not persisted
+    // not persisted, and never written to the shared database
     if(it) it.el.classList.add("show-label");
   }
   requestAnimationFrame(loop);
+  void initShared().then(ok=>{
+    if(!ok && !DEMO){
+      loadUser();
+      updateCount();
+    }
+  }).catch(()=>{
+    if(!DEMO){ try{ loadUser(); updateCount(); }catch(e){} }
+  });
 }
 
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
