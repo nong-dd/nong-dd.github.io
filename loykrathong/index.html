@@ -6,6 +6,14 @@
 <meta name="theme-color" content="#0a1224">
 <meta name="description" content="ลอยกระทงออนไลน์ ไม่สร้างขยะ — เขียนคำอธิษฐานแล้วปล่อยกระทงลอยไปกับสายน้ำ">
 <title>ลอยกระทงออนไลน์</title>
+<script>
+(function(){
+  var q=location.search;
+  var demo=/(?:\?|&)demo=1(?:&|$)/.test(q);
+  var force=/(?:\?|&)splash=1(?:&|$)/.test(q);
+  if(demo && !force) document.documentElement.classList.add("no-splash");
+})();
+</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230b1730'/%3E%3Ccircle cx='20' cy='11' r='7' fill='%23f3e0a8'/%3E%3Cellipse cx='16' cy='24' rx='9' ry='4' fill='%233a7a28'/%3E%3Cpath d='M16 20l1-5 1 5' stroke='%23ffd56b' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,8 +211,96 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
   #toast{bottom:28px;left:auto;right:28px;transform:translateY(8px);width:max-content}
   #toast.show{transform:translateY(0)}
 }
+/* ---- welcome splash ---- */
+html.no-splash #splash{display:none!important}
+#splash{
+  position:fixed;inset:0;z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  padding:max(24px, env(safe-area-inset-top,0px)) 22px max(24px, env(safe-area-inset-bottom,0px));
+  background:linear-gradient(180deg,#050810 0%,#070b18 28%,#0a1428 52%,#0c1730 68%,#08101c 100%);
+  color:#f6eede;
+  cursor:pointer;
+  opacity:1;
+  transition:opacity .6s ease;
+  overflow:hidden;
+  -webkit-user-select:none;user-select:none;
+}
+#splash.out{opacity:0;pointer-events:none}
+#splash-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#splash-stars i{
+  position:absolute;border-radius:50%;background:#fff;
+  box-shadow:0 0 6px rgba(255,255,255,.8);
+  animation:twinkle 2.6s ease-in-out infinite;
+}
+#splash-moon{
+  position:absolute;top:8%;right:8%;width:90px;height:90px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 38% 35%,rgba(255,253,242,.85) 0%,rgba(255,240,194,.7) 38%,rgba(240,212,138,.55) 78%,rgba(224,184,90,.4) 100%);
+  box-shadow:0 0 24px 8px rgba(255,236,180,.28),0 0 80px 28px rgba(255,214,120,.14),0 0 140px 50px rgba(255,190,80,.08);
+  opacity:.7;
+}
+#splash-moon::after{content:"";position:absolute;inset:14% 22% auto auto;width:28%;height:22%;border-radius:50%;background:rgba(210,180,110,.22)}
+#splash-river{
+  position:absolute;left:0;right:0;bottom:0;height:26%;pointer-events:none;
+  background:
+    linear-gradient(180deg,transparent 0%,rgba(10,28,51,.28) 22%,rgba(8,20,36,.62) 68%,#060a12 100%),
+    radial-gradient(ellipse at 50% 0%,rgba(255,230,170,.12),transparent 58%);
+}
+#splash-river::before{
+  content:"";position:absolute;left:50%;top:6%;width:46%;height:80%;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,240,190,.26),rgba(255,220,140,.08) 42%,transparent 72%);
+  filter:blur(12px);opacity:.65;
+}
+#splash-inner{
+  position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;
+  text-align:center;width:min(520px,100%);
+}
+.splash-logo{
+  width:min(280px,78vw);height:auto;
+  filter:drop-shadow(0 6px 22px rgba(0,0,0,.45));
+}
+.splash-title{
+  font-family:var(--display);font-weight:700;
+  font-size:clamp(26px, 7vw, 52px);
+  line-height:1.2;letter-spacing:.03em;
+  margin:18px 0 0;padding:4px 4px 6px;
+  background:linear-gradient(180deg,#fff8dc 0%,#f3e0a8 38%,#e8c87a 72%,#c9a24a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 18px rgba(232,200,122,.5)) drop-shadow(0 2px 10px rgba(0,0,0,.55));
+}
+.splash-title span{display:block;font-size:1.08em;letter-spacing:.04em}
+.splash-sub{
+  margin-top:10px;font-size:clamp(13px,3.6vw,16px);font-weight:400;
+  color:rgba(243,224,168,.88);letter-spacing:.02em;
+  text-shadow:0 1px 8px rgba(0,0,0,.5);
+}
+#splash-cta{
+  margin-top:28px;
+  padding:12px 22px;
+  border-radius:999px;
+  background:linear-gradient(180deg,#fff1c4,#e8c87a 55%,#c9a04a);
+  color:#1a1408;
+  font-weight:700;
+  font-size:clamp(13px,3.5vw,15.5px);
+  line-height:1.35;
+  max-width:100%;
+  box-shadow:0 8px 24px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.18) inset;
+  animation:splash-pulse 1.8s ease-in-out infinite;
+}
+#splash-cta:focus-visible{outline:2px solid #fff6d2;outline-offset:3px}
+@keyframes splash-pulse{
+  0%,100%{transform:scale(1);box-shadow:0 8px 24px rgba(0,0,0,.35),0 0 0 0 rgba(232,200,122,.5)}
+  50%{transform:scale(1.045);box-shadow:0 8px 28px rgba(0,0,0,.35),0 0 0 12px rgba(232,200,122,0)}
+}
+@media (min-width:860px){
+  #splash-moon{width:140px;height:140px;top:10%;right:14%}
+  .splash-logo{width:min(340px,40vw)}
+  #splash-cta{margin-top:34px;padding:14px 28px}
+}
 @media (prefers-reduced-motion:reduce){
-  .star,.lantern,.wave,#moon-ref,.spark,.flame,.glow,.smoke{animation-duration:12s}
+  .star,.lantern,.wave,#moon-ref,.spark,.flame,.glow,.smoke,#splash-stars i{animation-duration:12s}
+  #splash-cta{animation:none}
+  #splash{transition:opacity .35s ease}
 }
 </style>
 </head>
@@ -348,7 +444,28 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
   </aside>
 </div>
 
+<div id="splash" role="dialog" aria-modal="true" aria-labelledby="splash-title" aria-describedby="splash-sub">
+  <div id="splash-stars" aria-hidden="true"></div>
+  <div id="splash-moon" aria-hidden="true"></div>
+  <div id="splash-river" aria-hidden="true"></div>
+  <div id="splash-inner">
+    <img class="splash-logo" src="k/mfusion-logo.webp" width="600" height="190" alt="MFUSION">
+    <h2 class="splash-title" id="splash-title">Welcome <span>MFUSION GANG</span></h2>
+    <p class="splash-sub" id="splash-sub">ร่วมลอยกระทงออนไลน์ไปด้วยกัน 🏮</p>
+    <button type="button" id="splash-cta">แตะเพื่อเข้าสู่งานลอยกระทง 🎶</button>
+  </div>
+</div>
+<script>
+(function(){
+  if(document.documentElement.classList.contains("no-splash")){
+    var s=document.getElementById("splash");
+    if(s) s.remove();
+  }
+})();
+</script>
+
 <audio id="bgm" src="music.mp3" loop preload="auto"></audio>
+
 
 <script>
 (function(){
@@ -384,6 +501,9 @@ const SEEDS = [
 const STORAGE_KEY = "loykrathong-v1";
 const MAX_SAVED = 30;
 const DEMO = /(?:\?|&)demo=1(?:&|$)/.test(location.search);
+const FORCE_SPLASH = /(?:\?|&)splash=1(?:&|$)/.test(location.search);
+const SHOW_SPLASH = FORCE_SPLASH || !DEMO;
+
 
 let selectedStyle = "lotus";
 let selectedColor = COLORS[0].hex;
@@ -984,8 +1104,74 @@ function fakeAvatar(){
   return c.toDataURL("image/jpeg",0.8);
 }
 
+/* ---- welcome splash ---- */
+function buildSplashStars(){
+  const box=$("splash-stars");
+  if(!box) return;
+  const frag=document.createDocumentFragment();
+  for(let i=0;i<80;i++){
+    const s=document.createElement("i");
+    const size=Math.random()<0.15?2.4:(Math.random()*1.6+0.6);
+    s.style.width=s.style.height=size+"px";
+    s.style.left=(Math.random()*100)+"%";
+    s.style.top=(Math.random()*86)+"%";
+    s.style.animationDelay=(Math.random()*2.6)+"s";
+    s.style.animationDuration=(2.1+Math.random()*2.2)+"s";
+    s.style.opacity=String(0.35+Math.random()*0.65);
+    frag.appendChild(s);
+  }
+  box.appendChild(frag);
+}
+function dismissSplash(){
+  const el=$("splash");
+  if(!el || el.classList.contains("out")) return;
+  el.classList.add("out");
+  el.setAttribute("aria-hidden","true");
+  const done=()=>{
+    if(!el.parentNode) return;
+    el.remove();
+  };
+  el.addEventListener("transitionend", ev=>{
+    if(ev.target===el) done();
+  });
+  setTimeout(done, 800);
+}
+function onSplashActivate(e){
+  const el=$("splash");
+  if(!el || el.classList.contains("out")) return;
+  if(e){
+    if(e.type==="keydown"){
+      if(e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+      if(e.key!=="Enter" && e.key!==" " && e.code!=="Space") return;
+      e.preventDefault();
+    }
+    if(e.stopPropagation) e.stopPropagation();
+  }
+  // Must call play() in the same user-gesture handler
+  startSound();
+  dismissSplash();
+}
+function setupSplash(){
+  const el=$("splash");
+  if(!SHOW_SPLASH){
+    if(el) el.remove();
+    return;
+  }
+  if(!el) return;
+  buildSplashStars();
+  el.addEventListener("pointerdown", onSplashActivate);
+  el.addEventListener("click", onSplashActivate);
+  el.addEventListener("keydown", onSplashActivate);
+  const cta=$("splash-cta");
+  if(cta){
+    cta.addEventListener("click", onSplashActivate);
+    try{ cta.focus(); }catch(err){}
+  }
+}
+
 /* ---- boot ---- */
 function boot(){
+
   buildStars();
   buildLanterns();
   buildSparkles();
@@ -999,6 +1185,7 @@ function boot(){
   $("btn-sound").addEventListener("click", toggleSound);
   bindFirstGesture();
   startSound();
+  setupSplash();
 
   if(DEMO){
     const it=makeItem({
