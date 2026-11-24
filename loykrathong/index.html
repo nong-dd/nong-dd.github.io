@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#0a1224">
 <meta name="description" content="ลอยกระทงออนไลน์ ไม่สร้างขยะ — เขียนคำอธิษฐานแล้วปล่อยกระทงลอยไปกับสายน้ำ">
 <title>ลอยกระทงออนไลน์</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230b1730'/%3E%3Ccircle cx='20' cy='11' r='7' fill='%23f3e0a8'/%3E%3Cellipse cx='16' cy='24' rx='9' ry='4' fill='%233a7a28'/%3E%3Cpath d='M16 20l1-5 1 5' stroke='%23ffd56b' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -84,7 +85,11 @@ img,svg{display:block;max-width:100%}
 .kitem{position:absolute;left:0;top:0;width:96px;height:120px;transform-origin:50% 88%;pointer-events:auto;cursor:pointer;will-change:transform;filter:drop-shadow(0 8px 6px rgba(0,0,0,.35))}
 .kitem .ksvg{width:100%;height:100%;overflow:visible}
 .kitem .ksvg svg{width:100%;height:100%;overflow:visible}
-.klabel{position:absolute;left:50%;bottom:64%;transform:translateX(-50%);transform-origin:50% 100%;width:max-content;max-width:160px;padding:5px 10px;border-radius:10px;background:rgba(8,12,24,.86);border:1px solid rgba(232,200,122,.35);color:#fff6d8;font-size:12px;line-height:1.4;text-align:center;opacity:0;pointer-events:none;transition:opacity .35s;backdrop-filter:blur(6px);box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.kitem.kimg{width:124px;height:auto}
+.kitem.kimg .ksvg{height:auto;line-height:0}
+.kitem.kimg .ksvg img{width:100%;height:auto;display:block;pointer-events:none}
+.kitem .kavatar{position:absolute;top:10%;right:-8px;width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.5);object-fit:cover;background:#2a2038;z-index:5;pointer-events:none}
+.klabel{position:absolute;left:50%;bottom:100%;margin-bottom:6px;transform:translateX(-50%);transform-origin:50% 100%;width:max-content;max-width:160px;padding:5px 10px;border-radius:10px;background:rgba(8,12,24,.86);border:1px solid rgba(232,200,122,.35);color:#fff6d8;font-size:12px;line-height:1.4;text-align:center;opacity:0;pointer-events:none;transition:opacity .35s;backdrop-filter:blur(6px);box-shadow:0 6px 16px rgba(0,0,0,.3);z-index:2}
 .klabel b{display:block;color:var(--gold-2);font-weight:600;font-size:12px;margin-bottom:1px}
 .klabel span{white-space:normal;display:block}
 .kitem.show-label .klabel{opacity:1}
@@ -119,18 +124,22 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
 #counter .num{font-family:var(--display);font-size:22px;line-height:1.1;color:var(--gold-2);font-weight:700}
 
 /* ---- designer ---- */
-#designer{position:absolute;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,rgba(14,20,40,.86),rgba(8,12,24,.94));border-top:1px solid rgba(232,200,122,.38);border-radius:22px 22px 0 0;padding:8px 16px calc(14px + var(--safe-b));backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 -12px 40px rgba(0,0,0,.4)}
-.handle{width:40px;height:4px;border-radius:4px;background:rgba(232,200,122,.35);margin:0 auto 8px}
-#designer h2{font-size:13px;font-weight:600;color:var(--gold-2);margin-bottom:8px;letter-spacing:.04em}
-.styles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
-.style{position:relative;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:6px 4px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;color:rgba(246,238,222,.75);font-size:11px;font-weight:500;transition:border .2s,background .2s,transform .15s}
-.style svg{width:52px;height:52px}
+#designer{position:absolute;left:0;right:0;bottom:0;z-index:20;background:linear-gradient(180deg,rgba(14,20,40,.86),rgba(8,12,24,.94));border-top:1px solid rgba(232,200,122,.38);border-radius:22px 22px 0 0;padding:6px 14px calc(10px + var(--safe-b));backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 -12px 40px rgba(0,0,0,.4)}
+.handle{width:40px;height:4px;border-radius:4px;background:rgba(232,200,122,.35);margin:0 auto 6px}
+#designer h2{font-size:13px;font-weight:600;color:var(--gold-2);margin-bottom:6px;letter-spacing:.04em}
+.styles{display:flex;gap:8px;margin-bottom:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding:2px 1px 6px;scroll-snap-type:x proximity}
+.styles::-webkit-scrollbar{height:4px}
+.styles::-webkit-scrollbar-thumb{background:rgba(232,200,122,.35);border-radius:4px}
+.style{position:relative;flex:0 0 76px;width:76px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:6px 4px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;color:rgba(246,238,222,.75);font-size:10.5px;font-weight:500;transition:border .2s,background .2s,transform .15s;scroll-snap-align:start}
+.style svg,.style img{width:54px;height:54px;object-fit:contain}
+.style span{text-align:center;line-height:1.25;max-width:100%}
 .style.sel{border-color:var(--gold);background:rgba(232,200,122,.12);color:var(--gold-2);box-shadow:0 0 0 1px rgba(232,200,122,.25)}
 .style:active{transform:scale(.97)}
-.colors{display:flex;justify-content:space-between;gap:6px;margin-bottom:10px}
+.colors{display:flex;justify-content:space-between;gap:6px;margin-bottom:8px}
+.colors.hidden{display:none}
 .swatch{width:28px;height:28px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25);transition:transform .15s,box-shadow .15s}
 .swatch.sel{box-shadow:0 0 0 2px var(--ink),0 0 0 4px var(--gold);transform:scale(1.08)}
-.fields{display:grid;gap:7px;margin-bottom:10px}
+.fields{display:grid;gap:6px;margin-bottom:8px}
 .field{position:relative}
 .field label{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:rgba(246,238,222,.45);pointer-events:none;transition:.15s}
 .field input,.field textarea{
@@ -140,6 +149,20 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
 .field textarea{padding-top:10px;height:44px;line-height:1.4}
 .field input:focus,.field textarea:focus{border-color:rgba(232,200,122,.55)}
 .field .count{position:absolute;right:8px;bottom:6px;font-size:10px;color:rgba(246,238,222,.35)}
+.photo-field{margin-top:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.photo-field .photo-lab{display:block;font-size:12px;font-weight:500;color:rgba(246,238,222,.7);margin-bottom:0}
+.photo-row{display:flex;align-items:center;gap:10px;flex:1 1 auto}
+#photo-pick{
+  height:36px;padding:0 12px;border-radius:10px;font-size:13px;font-weight:500;
+  color:var(--gold-2);background:rgba(255,255,255,.06);border:1px solid rgba(232,200,122,.3);
+}
+#photo-pick:hover{background:rgba(255,255,255,.1)}
+#inp-photo{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0,0,0,0)}
+.photo-preview-wrap{position:relative;width:48px;height:48px;flex:0 0 48px;display:none}
+.photo-preview-wrap.show{display:block}
+.photo-preview-wrap img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 0 0 1px rgba(232,200,122,.35)}
+#photo-remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:#c4473a;color:#fff;font-size:14px;line-height:1;display:grid;place-items:center;border:1px solid rgba(255,255,255,.45)}
+.photo-note{flex:1 1 100%;margin-top:0;font-size:10.5px;color:rgba(246,238,222,.45);line-height:1.4}
 #float-btn{
   width:100%;height:46px;border-radius:14px;font-size:16px;font-weight:700;letter-spacing:.06em;
   color:#2a1c06;background:linear-gradient(180deg,#f3e0a8,#d4a84b 60%,#c4963a);
@@ -173,7 +196,10 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
     border:1px solid rgba(232,200,122,.38);
     padding:14px 18px 16px;
   }
+  .photo-note{font-size:11px}
   .handle{display:none}
+  .styles{display:grid;grid-template-columns:repeat(4,1fr);overflow:visible;padding:0 0 2px;scroll-snap-type:none}
+  .style{flex:none;width:auto}
   #toast{bottom:28px;left:auto;right:28px;transform:translateY(8px);width:max-content}
   #toast.show{transform:translateY(0)}
 }
@@ -302,6 +328,18 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
         <input id="inp-wish" name="wish" type="text" maxlength="80" placeholder="ขอให้...">
         <span class="count" id="wish-count">0/80</span>
       </div>
+      <div class="photo-field">
+        <span class="photo-lab" id="photo-lab">อัปโหลดรูปของคุณ</span>
+        <input id="inp-photo" name="photo" type="file" accept="image/*" aria-labelledby="photo-lab">
+        <div class="photo-row">
+          <button type="button" id="photo-pick">เลือกรูป</button>
+          <div id="photo-preview-wrap" class="photo-preview-wrap">
+            <img id="photo-preview" alt="รูปที่เลือก" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==">
+            <button type="button" id="photo-remove" aria-label="ลบรูป">×</button>
+          </div>
+        </div>
+        <p class="photo-note">รูปจะแสดงบนอุปกรณ์ของคุณเท่านั้น</p>
+      </div>
     </div>
     <button type="button" id="float-btn">
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><g transform="translate(0,1)"><ellipse cx="12" cy="16" rx="7" ry="3" fill="#3a7a28"/><path d="M12 14c2-3 5-4 6-7" stroke="#9ad06a" stroke-width="1.2" fill="none"/><path d="M12 8l.6-5 .7 5" stroke="#ffd56b" stroke-width="1.4" stroke-linecap="round"/><circle cx="12.6" cy="3" r="1.2" fill="#ff9f43"/></g></svg>
@@ -317,10 +355,14 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,9vw,42px);let
 "use strict";
 
 const STYLES = [
-  {id:"banana",  name:"ใบตอง"},
-  {id:"lotus",   name:"ดอกบัว"},
-  {id:"bread",   name:"ขนมปัง"},
-  {id:"coconut", name:"กาบมะพร้าว"}
+  {id:"banana",      name:"ใบตอง"},
+  {id:"lotus",       name:"ดอกบัว"},
+  {id:"bread",       name:"ขนมปัง"},
+  {id:"coconut",     name:"กาบมะพร้าว"},
+  {id:"hlongtur",    name:"กระทงหลงเธอ",    img:"k/hlongtur.webp"},
+  {id:"beer",        name:"กระทงแก้วเบียร์", img:"k/beer.webp"},
+  {id:"maitrongpok", name:"กระทงไม่ตรงปก",  img:"k/maitrongpok.webp"},
+  {id:"saipay",      name:"กระทงสายเปย์",    img:"k/saipay.webp"}
 ];
 const COLORS = [
   {id:"pink",   hex:"#ff8fab"},
@@ -332,23 +374,25 @@ const COLORS = [
   {id:"gold",   hex:"#e8c87a"}
 ];
 const SEEDS = [
-  {style:"lotus",   color:"#ff8fab", name:"น้องน้ำ",   wish:"ขอให้สุขภาพแข็งแรง",           depth:.18, x:.22, vx:.012},
-  {style:"banana",  color:"#ffd56b", name:"คุณดาว",    wish:"ขอให้ครอบครัวมีความสุข",       depth:.42, x:.68, vx:-.01},
-  {style:"coconut", color:"#e8a0bf", name:"มิตร",      wish:"ขอให้สมหวังดังตั้งใจ",         depth:.58, x:.40, vx:.008},
-  {style:"bread",   color:"#fff1a8", name:"สายลม",     wish:"ขอให้โลกใบนี้อยู่เย็นเป็นสุข", depth:.30, x:.86, vx:-.014},
-  {style:"lotus",   color:"#c9a0ff", name:"แสงเดือน",  wish:"ขอให้ความทุกข์ลอยไปกับน้ำ",   depth:.72, x:.14, vx:.006},
-  {style:"banana",  color:"#ff9f56", name:"สายใจ",     wish:"ขอให้พบแต่สิ่งดี ๆ",           depth:.50, x:.54, vx:-.007}
+  {style:"hlongtur", color:"#ff8fab", name:"น้องน้ำ",   wish:"ขอให้สุขภาพแข็งแรง",           depth:.18, x:.22, vx:.012},
+  {style:"banana",   color:"#ffd56b", name:"คุณดาว",    wish:"ขอให้ครอบครัวมีความสุข",       depth:.42, x:.68, vx:-.01},
+  {style:"coconut",  color:"#e8a0bf", name:"มิตร",      wish:"ขอให้สมหวังดังตั้งใจ",         depth:.58, x:.40, vx:.008},
+  {style:"saipay",   color:"#fff1a8", name:"สายลม",     wish:"ขอให้โลกใบนี้อยู่เย็นเป็นสุข", depth:.30, x:.86, vx:-.014},
+  {style:"lotus",    color:"#c9a0ff", name:"แสงเดือน",  wish:"ขอให้ความทุกข์ลอยไปกับน้ำ",   depth:.72, x:.14, vx:.006},
+  {style:"banana",   color:"#ff9f56", name:"สายใจ",     wish:"ขอให้พบแต่สิ่งดี ๆ",           depth:.50, x:.54, vx:-.007}
 ];
 const STORAGE_KEY = "loykrathong-v1";
+const MAX_SAVED = 30;
 const DEMO = /(?:\?|&)demo=1(?:&|$)/.test(location.search);
 
 let selectedStyle = "lotus";
 let selectedColor = COLORS[0].hex;
+let selectedPhoto = null;
 let fleet = [];
 let userItems = [];
 let lastFloat = 0;
 let popupTimer = 0;
-let audio = {ctx:null, on:false, nodes:[]};
+let audio = {ctx:null, on:false, wanted:true, nodes:[]};
 
 const $ = (id) => document.getElementById(id);
 const fleetEl = $("fleet");
@@ -365,6 +409,16 @@ function shade(hex, amt){
   return "#"+((1<<24)|(r<<16)|(g<<8)|b).toString(16).slice(1);
 }
 function uid(){ return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4); }
+function styleById(id){ return STYLES.find(s=>s.id===id); }
+function isImgStyle(id){ const s=styleById(id); return !!(s && s.img); }
+function krathongVisual(style, color){
+  const s=styleById(style);
+  if(s && s.img) return `<img src="${s.img}" alt="">`;
+  return krathongSVG(style || "lotus", color);
+}
+function validPhoto(p){
+  return typeof p==="string" && p.length<180000 && /^data:image\/(jpeg|jpg|png|webp);base64,/.test(p);
+}
 
 function blossoms(color, cy, n, spread, r){
   const dark = shade(color,-40), light=shade(color,30), mid=color;
@@ -555,6 +609,69 @@ function buildSparkles(){
 }
 
 /* ---- designer UI ---- */
+function syncColorVisibility(){
+  $("color-row").classList.toggle("hidden", isImgStyle(selectedStyle));
+  measureSheet();
+}
+function showPhotoPreview(src){
+  const wrap=$("photo-preview-wrap");
+  const img=$("photo-preview");
+  if(src){
+    img.src=src;
+    wrap.classList.add("show");
+  }else{
+    img.src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+    wrap.classList.remove("show");
+  }
+}
+function downscalePhoto(file){
+  return new Promise((resolve, reject)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const side=Math.min(img.naturalWidth||img.width, img.naturalHeight||img.height) || 1;
+        const sx=((img.naturalWidth||img.width)-side)/2;
+        const sy=((img.naturalHeight||img.height)-side)/2;
+        const c=document.createElement("canvas");
+        c.width=c.height=128;
+        const ctx=c.getContext("2d");
+        ctx.fillStyle="#1a1420";
+        ctx.fillRect(0,0,128,128);
+        ctx.drawImage(img,sx,sy,side,side,0,0,128,128);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL("image/jpeg", 0.85));
+      }catch(err){
+        URL.revokeObjectURL(url);
+        reject(err);
+      }
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(url); reject(new Error("image")); };
+    img.src=url;
+  });
+}
+function clearPhoto(){
+  selectedPhoto=null;
+  const inp=$("inp-photo");
+  if(inp) inp.value="";
+  showPhotoPreview(null);
+}
+function bindPhotoField(){
+  $("photo-pick").addEventListener("click",()=>$("inp-photo").click());
+  $("inp-photo").addEventListener("change", async (e)=>{
+    const f=e.target.files && e.target.files[0];
+    e.target.value="";
+    if(!f) return;
+    if(f.type && f.type.indexOf("image/")!==0){ toast("กรุณาเลือกรูปภาพ"); return; }
+    try{
+      selectedPhoto=await downscalePhoto(f);
+      showPhotoPreview(selectedPhoto);
+    }catch(err){
+      toast("อ่านรูปไม่สำเร็จ");
+    }
+  });
+  $("photo-remove").addEventListener("click", clearPhoto);
+}
 function buildDesigner(){
   const row=$("style-row");
   STYLES.forEach(st=>{
@@ -563,10 +680,11 @@ function buildDesigner(){
     b.className="style"+(st.id===selectedStyle?" sel":"");
     b.dataset.id=st.id;
     b.setAttribute("aria-label",st.name);
-    b.innerHTML=krathongSVG(st.id, selectedColor)+`<span>${st.name}</span>`;
+    b.innerHTML=krathongVisual(st.id, selectedColor)+`<span>${st.name}</span>`;
     b.addEventListener("click",()=>{
       selectedStyle=st.id;
       row.querySelectorAll(".style").forEach(x=>x.classList.toggle("sel",x.dataset.id===st.id));
+      syncColorVisibility();
     });
     row.appendChild(b);
   });
@@ -581,11 +699,11 @@ function buildDesigner(){
     b.addEventListener("click",()=>{
       selectedColor=c.hex;
       crow.querySelectorAll(".swatch").forEach(x=>x.classList.toggle("sel",x===b));
-      // refresh style thumbnails
       row.querySelectorAll(".style").forEach(x=>{
         const id=x.dataset.id;
+        if(isImgStyle(id)) return;
         const label=x.querySelector("span").textContent;
-        x.innerHTML=krathongSVG(id, selectedColor)+`<span>${label}</span>`;
+        x.innerHTML=krathongVisual(id, selectedColor)+`<span>${label}</span>`;
       });
     });
     crow.appendChild(b);
@@ -593,17 +711,21 @@ function buildDesigner(){
   $("inp-wish").addEventListener("input",()=>{
     $("wish-count").textContent=($("inp-wish").value.length)+"/80";
   });
+  bindPhotoField();
   $("float-btn").addEventListener("click", onFloat);
+  syncColorVisibility();
 }
 
 /* ---- fleet ---- */
 function makeItem(opt){
+  const style = styleById(opt.style) ? opt.style : "lotus";
   const it={
     id: opt.id || uid(),
-    style: opt.style || "lotus",
+    style,
     color: opt.color || "#ff8fab",
     name: (opt.name||"").trim() || "ผู้ลอยกระทง",
     wish: (opt.wish||"").trim() || "ขอให้มีความสุข",
+    photo: validPhoto(opt.photo) ? opt.photo : null,
     isUser: !!opt.isUser,
     isDemo: !!opt.isDemo,
     x: opt.x ?? (0.35+Math.random()*0.3),
@@ -618,9 +740,10 @@ function makeItem(opt){
     el: null
   };
   const el=document.createElement("div");
-  el.className="kitem";
+  el.className="kitem"+(isImgStyle(it.style)?" kimg":"");
   el.dataset.id=it.id;
-  el.innerHTML=`<div class="klabel"><b></b><span></span></div><div class="ksvg">${krathongSVG(it.style,it.color)}</div>`;
+  const av=it.photo ? `<img class="kavatar" alt="" src="${it.photo}">` : "";
+  el.innerHTML=`<div class="klabel"><b></b><span></span></div><div class="ksvg">${krathongVisual(it.style,it.color)}</div>${av}`;
   const lab=el.querySelector(".klabel");
   lab.querySelector("b").textContent=it.name;
   lab.querySelector("span").textContent=it.wish;
@@ -631,19 +754,35 @@ function makeItem(opt){
   return it;
 }
 
+function serializeItem(u, withPhoto){
+  const o={
+    id:u.id, style:u.style, color:u.color, name:u.name, wish:u.wish,
+    x:u.x, depth:Math.max(u.depth, 0.15), vx:u.vx, phase:u.phase, settle:u.settle
+  };
+  if(withPhoto && u.photo) o.photo=u.photo;
+  return o;
+}
 function persist(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userItems.map(u=>({
-      id:u.id, style:u.style, color:u.color, name:u.name, wish:u.wish,
-      x:u.x, depth:Math.max(u.depth, 0.15), vx:u.vx, phase:u.phase, settle:u.settle
-    }))));
-  }catch(e){}
+  const items=userItems.slice(-MAX_SAVED);
+  let photoFrom=0;
+  for(let guard=0; guard<200; guard++){
+    try{
+      const data=items.map((u,i)=>serializeItem(u, i>=photoFrom));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return;
+    }catch(e){
+      if(photoFrom<items.length){ photoFrom++; continue; }
+      if(items.length>1){ items.shift(); photoFrom=0; continue; }
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e2){}
+      return;
+    }
+  }
 }
 function loadUser(){
   try{
     const raw=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
     if(!Array.isArray(raw)) return;
-    raw.forEach(u=>{
+    raw.slice(-MAX_SAVED).forEach(u=>{
       const it=makeItem({...u, isUser:true, launching:false, depth:Math.min(0.85, Math.max(0.12, u.depth||0.4))});
       userItems.push(it);
     });
@@ -660,7 +799,7 @@ function onFloat(){
   const name=$("inp-name").value.trim();
   const wish=$("inp-wish").value.trim();
   const it=makeItem({
-    style:selectedStyle, color:selectedColor,
+    style:selectedStyle, color:selectedColor, photo:selectedPhoto,
     name, wish, isUser:true, launching:true, dropT:0,
     x:0.38+Math.random()*0.24, depth:0, settle:0.55+Math.random()*0.2,
     vx:(Math.random()<.5?-1:1)*(0.01+Math.random()*0.01),
@@ -710,8 +849,11 @@ function layoutItem(it, now){
   const wr=waterEl.getBoundingClientRect();
   const sheetTop = window.innerWidth>=860 ? window.innerHeight : designerEl.getBoundingClientRect().top;
   const visH = Math.max(120, Math.min(wr.height, sheetTop - wr.top));
-  const nearY = visH - 118;     // close to viewer
-  const farY  = -30;     // toward horizon
+  const itemW = it.el.offsetWidth || (isImgStyle(it.style)?124:96);
+  const itemH = it.el.offsetHeight || 120;
+  const farY  = isImgStyle(it.style) ? 12 : 4;
+  const reserved = Math.min(itemH * 0.88, Math.max(70, visH * 0.58));
+  const nearY = Math.max(farY + 24, visH - reserved);
   const t = it.depth;
   const eased = t*t*(3-2*t); // smoothstep
   const bob = Math.sin(now/480 + it.phase) * (5 + (1-t)*7);
@@ -732,7 +874,7 @@ function layoutItem(it, now){
     if(it.x<-0.16) it.x=1.14;
   }
   const scale = 1.08 - eased*0.86;
-  const xPx = it.x * wr.width - 48;
+  const xPx = it.x * wr.width - itemW/2;
   const yPx = farY + (nearY-farY)*(1-eased) + bob + drop;
   it.el.style.transform=`translate3d(${xPx}px, ${yPx}px, 0) scale(${scale})`;
   it.el.style.zIndex=String(100+Math.round((1-t)*200));
@@ -778,12 +920,22 @@ function syncSoundUI(){
   $("ic-sound-on").style.display=on?"":"none";
   $("ic-sound-off").style.display=on?"none":"";
 }
+const GESTURE_EVTS=["pointerdown","touchstart","keydown","scroll"];
+function bindFirstGesture(){
+  unbindFirstGesture();
+  GESTURE_EVTS.forEach(ev=>{
+    document.addEventListener(ev, onFirstGesture, {capture:true, passive:true});
+    window.addEventListener(ev, onFirstGesture, {capture:true, passive:true});
+  });
+}
 function unbindFirstGesture(){
-  document.removeEventListener("pointerdown", onFirstGesture, true);
-  document.removeEventListener("keydown", onFirstGesture, true);
+  GESTURE_EVTS.forEach(ev=>{
+    document.removeEventListener(ev, onFirstGesture, true);
+    window.removeEventListener(ev, onFirstGesture, true);
+  });
 }
 function onFirstGesture(e){
-  if(audio.on){ unbindFirstGesture(); return; }
+  if(audio.on || audio.wanted===false){ unbindFirstGesture(); return; }
   if(e && e.target && e.target.closest && e.target.closest("#btn-sound")) return;
   if(e && e.type==="keydown" && (e.repeat || e.metaKey || e.ctrlKey || e.altKey)) return;
   unbindFirstGesture();
@@ -793,15 +945,18 @@ function stopSound(){
   const el=$("bgm");
   if(el){ try{ el.pause(); }catch(e){} }
   audio.on=false;
+  audio.wanted=false;
+  unbindFirstGesture();
   syncSoundUI();
 }
 function startSound(){
+  audio.wanted=true;
   const el=$("bgm");
   if(!el || typeof el.play!=="function"){ toast("เครื่องนี้ไม่รองรับเสียง"); return; }
   el.volume=0.7;
   el.loop=true;
   const ok=()=>{ audio.on=true; unbindFirstGesture(); syncSoundUI(); };
-  const fail=()=>{ audio.on=false; syncSoundUI(); };
+  const fail=()=>{ audio.on=false; syncSoundUI(); bindFirstGesture(); };
   try{
     const p=el.play();
     if(p && p.then) p.then(ok).catch(fail);
@@ -809,6 +964,25 @@ function startSound(){
   }catch(e){ fail(); }
 }
 function toggleSound(){ if(audio.on) stopSound(); else startSound(); }
+function fakeAvatar(){
+  const c=document.createElement("canvas");
+  c.width=c.height=128;
+  const g=c.getContext("2d");
+  const grd=g.createLinearGradient(0,0,0,128);
+  grd.addColorStop(0,"#ffd6a5");
+  grd.addColorStop(1,"#f4a261");
+  g.fillStyle=grd; g.fillRect(0,0,128,128);
+  g.fillStyle="#4a2c1a";
+  g.beginPath(); g.ellipse(64,34,50,30,0,Math.PI,0,true); g.fill();
+  g.fillRect(14,28,100,22);
+  g.fillStyle="#2b1b12";
+  g.beginPath(); g.arc(46,62,6,0,Math.PI*2); g.arc(82,62,6,0,Math.PI*2); g.fill();
+  g.fillStyle="rgba(255,120,120,.45)";
+  g.beginPath(); g.ellipse(36,76,8,5,0,0,Math.PI*2); g.ellipse(92,76,8,5,0,0,Math.PI*2); g.fill();
+  g.strokeStyle="#2b1b12"; g.lineWidth=3; g.lineCap="round";
+  g.beginPath(); g.arc(64,78,18,0.15*Math.PI,0.85*Math.PI); g.stroke();
+  return c.toDataURL("image/jpeg",0.8);
+}
 
 /* ---- boot ---- */
 function boot(){
@@ -823,15 +997,16 @@ function boot(){
   window.addEventListener("resize", measureSheet);
   $("btn-share").addEventListener("click", onShare);
   $("btn-sound").addEventListener("click", toggleSound);
-  document.addEventListener("pointerdown", onFirstGesture, true);
-  document.addEventListener("keydown", onFirstGesture, true);
+  bindFirstGesture();
+  startSound();
 
   if(DEMO){
     const it=makeItem({
-      style:"lotus", color:"#ff8fab",
+      style:"hlongtur", color:"#ff8fab",
+      photo:fakeAvatar(),
       name:"ผู้มาเยือน", wish:"ขอให้สุขใจในวันลอยกระทง",
-      isDemo:true, launching:true, dropT:0.35,
-      x:0.48, depth:0.06, settle:0.28, vx:0.012,
+      isDemo:true, launching:false, dropT:1,
+      x:0.50, depth:0.22, settle:0.22, vx:0.01,
       labelUntil: performance.now()+20000
     });
     // not persisted
